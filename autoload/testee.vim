@@ -7,7 +7,7 @@ function! testee#case()
     let cases = substitute(cases, "'\\|\"", '.', 'g')
     let g:testee_config['last_exec'] = "%c -Itest " . expand("%") . " %a"
     let g:testee_config['last_args'] = "-n " . cases 
-    execute 'QuickRun -outputter buffer -runner vimproc' .
+    execute 'QuickRun -outputter multi -runner vimproc' .
           \' -exec "' . g:testee_config['last_exec'] . 
           \'" -args "' . g:testee_config['last_args'] . '"'
   else
@@ -16,18 +16,22 @@ function! testee#case()
 endfunction
 
 function! testee#file()
-  let g:testee_config['last_exec'] = "%c -Itest " . expand("%")
+  if s:testeeble()
+    let g:testee_config['last_exec'] = "%c -Itest " . expand("%")
+  else
+    let g:testee_config['last_exec'] = "%c -Itest " . split(rails#buffer().related(), '\n')[0]
+  endif
   let g:testee_config['last_args'] = -1
-  execute 'QuickRun -outputter buffer -runner vimproc' .
+  execute 'QuickRun -outputter multi -runner vimproc' .
         \' -exec "' . g:testee_config['last_exec'] . '"' 
 endfunction
 
 function! testee#last()
   if g:testee_config['last_args'] == -1
-    execute 'QuickRun -outputter buffer -runner vimproc' .
+    execute 'QuickRun -outputter multi -runner vimproc' .
           \' -exec "' . g:testee_config['last_exec'] . '"' 
   else
-    execute 'QuickRun -outputter buffer -runner vimproc' .
+    execute 'QuickRun -outputter multi -runner vimproc' .
           \' -exec "' . g:testee_config['last_exec'] . 
           \'" -args "' . g:testee_config['last_args'] . '"'
   endif
@@ -84,6 +88,5 @@ let s:test_case_patterns['test'] = {
       \'^\s*should \s*"':function('s:test_case_with_index_3'),
       \"^\\s*should \\s*'":function('s:test_case_with_index_5')
       \}
-
 
 let &cpo = s:save_cpo

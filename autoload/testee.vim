@@ -5,20 +5,32 @@ function! testee#case()
   let cases = s:test_cases_for_pattern(s:test_case_patterns['test'])
   if cases != 'false'
     let cases = substitute(cases, "'\\|\"", '.', 'g')
-    let g:testee_config['last_exec'] = "%c -Itest %s -n /" . cases . "/"
-    execute 'QuickRun -outputter buffer -runner vimproc -exec "' . g:testee_config['last_exec'] . '"'
+    let g:testee_config['last_exec'] = "%c -Itest " . expand("%") . " %a"
+    let g:testee_config['last_args'] = "-n " . cases 
+    execute 'QuickRun -outputter buffer -runner vimproc' .
+          \' -exec "' . g:testee_config['last_exec'] . 
+          \'" -args "' . g:testee_config['last_args'] . '"'
   else
     echoerr 'No test cases found.'
   endif
 endfunction
 
 function! testee#file()
-  let g:testee_config['last_exec'] = "%c -Itest %s"
-  execute 'QuickRun -outputter buffer -runner vimproc -exec "' . g:testee_config['last_exec'] . '"'
+  let g:testee_config['last_exec'] = "%c -Itest " . expand("%")
+  let g:testee_config['last_args'] = -1
+  execute 'QuickRun -outputter buffer -runner vimproc' .
+        \' -exec "' . g:testee_config['last_exec'] . '"' 
 endfunction
 
 function! testee#last()
-  execute 'QuickRun -outputter buffer -runner vimproc -exec "' . g:testee_config['last_exec'] . '"'
+  if g:testee_config['last_args'] == -1
+    execute 'QuickRun -outputter buffer -runner vimproc' .
+          \' -exec "' . g:testee_config['last_exec'] . '"' 
+  else
+    execute 'QuickRun -outputter buffer -runner vimproc' .
+          \' -exec "' . g:testee_config['last_exec'] . 
+          \'" -args "' . g:testee_config['last_args'] . '"'
+  endif
 endfunction
 
 function! s:test_cases_for_pattern(pattern)

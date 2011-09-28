@@ -7,7 +7,8 @@ function! testee#case()
     let cases = substitute(cases, "'\\|\"", '.', 'g')
     let g:testee_config['last_exec'] = "%o %c -Itest " . expand("%") . " %a"
     let g:testee_config['last_args'] = "-n " . cases 
-    execute 'QuickRun -outputter multi -errorformat "'. s:my_errorformat . s:errorformat_backtrace . ',' . s:errorformat_ruby . ',' . &errorformat . ',%-G%.%#' .'" -runner vimproc' .
+    let &l:errorformat = s:errorformat_backtrace
+    execute 'QuickRun -outputter multi -errorformat "'. s:errorformat_backtrace .'" -runner vimproc' .
           \' -exec "' . g:testee_config['last_exec'] . 
           \'" -args "' . g:testee_config['last_args'] . '"'
   else
@@ -154,11 +155,24 @@ let s:errorformat_backtrace='%D(in\ %f),'
       \.'%\\s%#from\ %f:%l:%m,'
       \.'%\\s%#from\ %f:%l:,'
       \.'%\\s#{RAILS_ROOT}/%f:%l:\ %#%m,'
+      \.'%\\s%##\ %f:%l:%m,'
+      \.'%\\s%##\ %f:%l,'
       \.'%\\s%#[%f:%l:\ %#%m,'
       \.'%\\s%#%f:%l:\ %#%m,'
       \.'%\\s%#%f:%l:,'
       \.'%m\ [%f:%l]:'
 
 let s:errorformat_ruby='\%-E-e:%.%#,\%+E%f:%l:\ parse\ error,%W%f:%l:\ warning:\ %m,%E%f:%l:in\ %*[^:]:\ %m,%E%f:%l:\ %m,%-C%\tfrom\ %f:%l:in\ %.%#,%-Z%\tfrom\ %f:%l,%-Z%p^'
+
+let s:efm_backtrace='%D(in\ %f),'
+      \.'%\\s%#from\ %f:%l:%m,'
+      \.'%\\s%#from\ %f:%l:,'
+      \.'%\\s#{RAILS_ROOT}/%f:%l:\ %#%m,'
+      \.'%\\s%##\ %f:%l:%m,'
+      \.'%\\s%##\ %f:%l,'
+      \.'%\\s%#[%f:%l:\ %#%m,'
+      \.'%\\s%#%f:%l:\ %#%m,'
+      \.'%\\s%#%f:%l:,'
+      \.'%m\ [%f:%l]:'
 
 let &cpo = s:save_cpo

@@ -30,7 +30,7 @@ let g:quickrun_config['*'] = {
       \ 'into' : 0,
       \ 'runmode' : 'async:remote:vimproc'
       \}
-let g:quickrun_config['ruby'] = {'command': 'bundle exec ruby', 'exec': '%o %c -Itest %s', 'cmdopt': 'env ROR_NO_COLOR=1'}
+let g:quickrun_config['ruby'] = {'command': 'ruby', 'exec': '%o %c -Itest %s', 'cmdopt': 'env ROR_NO_COLOR=1 bundle exec'}
 
 
 let &cpo = s:save_cpo

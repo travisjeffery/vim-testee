@@ -20,9 +20,12 @@ let g:quickrun_config = {}
 let g:quickrun_config['*'] = {
       \ 'runner/vimproc/updatetime' : 100,
       \ 'outputter/file/name' : '/tmp/testee.log',
-      \ 'split': 'vertical rightbelow',
-      \ 'targets' : ['quickfix', 'buffer', 'file'],
-      \ 'outputter' : 'buffer',
+      \ 'split': 'belowright vertical',
+      \ 'targets' : ['file', 'message', 'error'],
+      \ 'outputter' : 'multi',
+      \ 'log' : 1,
+      \ 'success' : 'message',
+      \ 'error' : 'quickfix',
       \ 'runner' : 'vimproc',
       \ 'into' : 0,
       \ 'runmode' : 'async:remote:vimproc'

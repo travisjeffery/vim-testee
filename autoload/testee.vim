@@ -7,7 +7,7 @@ function! testee#case()
     let cases = substitute(cases, "'\\|\"", '.', 'g')
     let g:testee_config['last_exec'] = "%o %c -Itest " . expand("%") . " %a"
     let g:testee_config['last_args'] = "-n " . cases 
-    execute 'QuickRun -outputter multi -runner vimproc' .
+    execute 'QuickRun -outputter multi -errorformat "'. s:my_errorformat . s:errorformat_backtrace . ',' . s:errorformat_ruby . ',' . &errorformat . ',%-G%.%#' .'" -runner vimproc' .
           \' -exec "' . g:testee_config['last_exec'] . 
           \'" -args "' . g:testee_config['last_args'] . '"'
   else
@@ -88,5 +88,77 @@ let s:test_case_patterns['test'] = {
       \'^\s*should \s*"':function('s:test_case_with_index_3'),
       \"^\\s*should \\s*'":function('s:test_case_with_index_5')
       \}
+
+let s:my_errorformat='%A%\\d%\\+)%.%#,'
+
+" current directory
+let s:my_errorformat=s:my_errorformat . '%D(in\ %f),'
+
+" failure and error headers, start a multiline message
+let s:my_errorformat=s:my_errorformat
+      \.'%A\ %\\+%\\d%\\+)\ Failure:,'
+      \.'%A\ %\\+%\\d%\\+)\ Error:,'
+      \.'%+A'."'".'%.%#'."'".'\ FAILED,'
+
+" exclusions
+let s:my_errorformat=s:my_errorformat
+      \.'%C%.%#(eval)%.%#,'
+      \.'%C-e:%.%#,'
+      \.'%C%.%#/lib/gems/%\\d.%\\d/gems/%.%#,'
+      \.'%C%.%#/lib/ruby/%\\d.%\\d/%.%#,'
+      \.'%C%.%#/vendor/rails/%.%#,'
+
+" specific to template errors
+let s:my_errorformat=s:my_errorformat
+      \.'%C\ %\\+On\ line\ #%l\ of\ %f,'
+      \.'%CActionView::TemplateError:\ compile\ error,'
+
+" stack backtrace is in brackets. if multiple lines, it starts on a new line.
+let s:my_errorformat=s:my_errorformat
+      \.'%Ctest_%.%#(%.%#):%#,'
+      \.'%C%.%#\ [%f:%l]:,'
+      \.'%C\ \ \ \ [%f:%l:%.%#,'
+      \.'%C\ \ \ \ %f:%l:%.%#,'
+      \.'%C\ \ \ \ \ %f:%l:%.%#]:,'
+      \.'%C\ \ \ \ \ %f:%l:%.%#,'
+
+" catch all
+let s:my_errorformat=s:my_errorformat
+      \.'%Z%f:%l:\ %#%m,'
+      \.'%Z%f:%l:,'
+      \.'%C%m,'
+
+" syntax errors in the test itself
+let s:my_errorformat=s:my_errorformat
+      \.'%.%#.rb:%\\d%\\+:in\ `load'."'".':\ %f:%l:\ syntax\ error\\\, %m,'
+      \.'%.%#.rb:%\\d%\\+:in\ `load'."'".':\ %f:%l:\ %m,'
+
+" and required files
+let s:my_errorformat=s:my_errorformat
+      \.'%.%#:in\ `require'."'".':in\ `require'."'".':\ %f:%l:\ syntax\ error\\\, %m,'
+      \.'%.%#:in\ `require'."'".':in\ `require'."'".':\ %f:%l:\ %m,'
+
+" exclusions
+let s:my_errorformat=s:my_errorformat
+      \.'%-G%.%#/lib/gems/%\\d.%\\d/gems/%.%#,'
+      \.'%-G%.%#/lib/ruby/%\\d.%\\d/%.%#,'
+      \.'%-G%.%#/vendor/rails/%.%#,'
+      \.'%-G%.%#%\\d%\\d:%\\d%\\d:%\\d%\\d%.%#,'
+
+" final catch all for one line errors
+let s:my_errorformat=s:my_errorformat
+      \.'%-G%\\s%#from\ %.%#,'
+      \.'%f:%l:\ %#%m,'
+
+let s:errorformat_backtrace='%D(in\ %f),'
+      \.'%\\s%#from\ %f:%l:%m,'
+      \.'%\\s%#from\ %f:%l:,'
+      \.'%\\s#{RAILS_ROOT}/%f:%l:\ %#%m,'
+      \.'%\\s%#[%f:%l:\ %#%m,'
+      \.'%\\s%#%f:%l:\ %#%m,'
+      \.'%\\s%#%f:%l:,'
+      \.'%m\ [%f:%l]:'
+
+let s:errorformat_ruby='\%-E-e:%.%#,\%+E%f:%l:\ parse\ error,%W%f:%l:\ warning:\ %m,%E%f:%l:in\ %*[^:]:\ %m,%E%f:%l:\ %m,%-C%\tfrom\ %f:%l:in\ %.%#,%-Z%\tfrom\ %f:%l,%-Z%p^'
 
 let &cpo = s:save_cpo
